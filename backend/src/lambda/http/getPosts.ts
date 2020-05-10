@@ -6,15 +6,18 @@ import {
   APIGatewayProxyHandler,
 } from 'aws-lambda';
 import { createLogger } from '../../utils/logger';
+import { getUserId } from '../utils';
 
-const logger = createLogger('generateUploadUrl');
+const logger = createLogger('getPosts');
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
-  const todoId = event.pathParameters.todoId;
-  logger.info(`Generating Upload Url for id ${todoId}`);
-
-  // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
-  return undefined;
+  const userId = getUserId(event);
+  logger.info(`Getting Posts for User ${userId}`);
+  // TODO: Get all TODO items for a current user
+  return {
+    statusCode: 200,
+    body: '',
+  };
 };

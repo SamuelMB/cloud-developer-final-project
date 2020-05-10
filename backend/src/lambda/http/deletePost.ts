@@ -7,14 +7,12 @@ import {
 } from 'aws-lambda';
 import { createLogger } from '../../utils/logger';
 
-const logger = createLogger('generateUploadUrl');
+const logger = createLogger('deletePost');
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
-  const todoId = event.pathParameters.todoId;
-  logger.info(`Generating Upload Url for id ${todoId}`);
-
-  // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
+  const postId = event.pathParameters.postId;
+  logger.info(`Deleting Post with id ${postId}`);
   return undefined;
 };
