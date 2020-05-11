@@ -6,6 +6,8 @@ plugins:
   - serverless-iam-roles-per-function
   - serverless-reqvalidator-plugin
   - serverless-aws-documentation
+  - serverless-dynamodb-local
+  - serverless-offline
 provider:
   name: aws
   runtime: nodejs12.x
@@ -19,6 +21,13 @@ provider:
     SIGNED_URL_EXPIRATION: 300
 
 custom:
+  serverless-offline:
+    port: 8080
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
   documentation:
     api:
       info:
@@ -55,7 +64,7 @@ functions:
         Action: dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}
   GetPosts:
-    handler: src/lambda/http/getPosts.handler
+    handler: src/lambda/http/getPostsByUser.handler
     events:
       - http:
           method: get
@@ -103,7 +112,7 @@ functions:
     events:
       - http:
           method: delete
-          path: posts/{todoId}
+          path: posts/{postId}
           authorizer: Auth
           cors: true
     iamRoleStatements:
