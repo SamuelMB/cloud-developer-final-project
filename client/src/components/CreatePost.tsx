@@ -3,7 +3,7 @@ import Auth from '../auth/Auth'
 import { History } from 'history'
 import { Button, Form } from 'semantic-ui-react'
 import { createPost } from '../api/posts-api'
-import { CreatePostRequest } from '../../../backend/src/requests/CreatePostRequest'
+import { CreatePostRequest } from '../types/CreatePostRequest'
 
 interface PostsProps {
   auth: Auth

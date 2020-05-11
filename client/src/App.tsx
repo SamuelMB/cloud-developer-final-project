@@ -3,11 +3,12 @@ import { Link, Route, Router, Switch } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
-import { EditTodo } from './components/EditTodo'
+import { EditPost } from './components/EditPost'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { PostsUser } from './components/PostsUser'
 import { CreatePost } from './components/CreatePost'
+import { AllPosts } from './components/AllPosts'
 
 export interface AppProps {}
 
@@ -55,18 +56,32 @@ export default class App extends Component<AppProps, AppState> {
   }
 
   generateMenu() {
-    return (
-      <Menu>
-        <Menu.Item name="home">
-          <Link to="/">Home</Link>
-        </Menu.Item>
-        <Menu.Item>
-          <Link to="/posts/create">Create Post</Link>
-        </Menu.Item>
+    if (this.props.auth.isAuthenticated()) {
+      return (
+        <Menu>
+          <Menu.Item name="home">
+            <Link to="/">Home</Link>
+          </Menu.Item>
+          <Menu.Item>
+            <Link to="/posts/create">Create Post</Link>
+          </Menu.Item>
+          <Menu.Item>
+            <Link to="/posts">Your Posts</Link>
+          </Menu.Item>
 
-        <Menu.Menu position="right">{this.logInLogOutButton()}</Menu.Menu>
-      </Menu>
-    )
+          <Menu.Menu position="right">{this.logInLogOutButton()}</Menu.Menu>
+        </Menu>
+      )
+    } else {
+      return (
+        <Menu>
+          <Menu.Item name="home">
+            <Link to="/">Home</Link>
+          </Menu.Item>
+          <Menu.Menu position="right">{this.logInLogOutButton()}</Menu.Menu>
+        </Menu>
+      )
+    }
   }
 
   logInLogOutButton() {
@@ -87,7 +102,7 @@ export default class App extends Component<AppProps, AppState> {
 
   generateCurrentPage() {
     if (!this.props.auth.isAuthenticated()) {
-      return <LogIn auth={this.props.auth} />
+      return <AllPosts />
     }
 
     return (
@@ -96,8 +111,15 @@ export default class App extends Component<AppProps, AppState> {
           path="/"
           exact
           render={(props) => {
-            return <PostsUser {...props} auth={this.props.auth} />
-            // return <CreatePost auth={this.props.auth} {...props} />
+            return <AllPosts />
+          }}
+        />
+
+        <Route
+          path="/posts"
+          exact
+          render={(props) => {
+            return <PostsUser auth={this.props.auth} {...props} />
           }}
         />
 
@@ -110,10 +132,10 @@ export default class App extends Component<AppProps, AppState> {
         />
 
         <Route
-          path="/todos/:todoId/edit"
+          path="/posts/:postId/edit"
           exact
           render={(props) => {
-            return <EditTodo {...props} auth={this.props.auth} />
+            return <EditPost {...props} auth={this.props.auth} />
           }}
         />
 

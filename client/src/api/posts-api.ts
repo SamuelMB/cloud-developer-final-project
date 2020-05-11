@@ -17,6 +17,18 @@ export async function getPosts(idToken: string): Promise<Post[]> {
   return response.data.items
 }
 
+export async function getAllPosts(): Promise<Post[]> {
+  console.log('Fetching Posts')
+
+  const response = await Axios.get(`${apiEndpoint}/posts/all`, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  console.log('Posts:', response.data)
+  return response.data.items
+}
+
 export async function createPost(
   idToken: string,
   newPost: CreatePostRequest
