@@ -30,7 +30,7 @@ export class PostAccess {
       .promise();
   }
 
-  async getPosts(userId: string): Promise<PostItem[]> {
+  async getPostsByUser(userId: string): Promise<PostItem[]> {
     const result = await this.docClient
       .scan({
         TableName: this.postsTable,
@@ -43,6 +43,29 @@ export class PostAccess {
       .promise();
 
     return result.Items as PostItem[];
+  }
+
+  async getAllPosts(): Promise<PostItem[]> {
+    const result = await this.docClient
+      .scan({ TableName: this.postsTable })
+      .promise();
+
+    return result.Items as PostItem[];
+  }
+
+  async getPostById(postId: string): Promise<PostItem> {
+    const result = await this.docClient
+      .scan({
+        TableName: this.postsTable,
+        IndexName: this.indexName,
+        FilterExpression: 'postId = :postId',
+        ExpressionAttributeValues: {
+          ':postId': postId,
+        },
+      })
+      .promise();
+
+    return result.Items[0] as PostItem;
   }
 
   async updatePost(

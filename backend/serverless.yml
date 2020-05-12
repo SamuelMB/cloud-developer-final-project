@@ -63,13 +63,35 @@ functions:
       - Effect: Allow
         Action: dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}
-  GetPosts:
+  GetPostsByUser:
     handler: src/lambda/http/getPostsByUser.handler
     events:
       - http:
           method: get
           path: posts
           authorizer: Auth
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}
+  GetAllPosts:
+    handler: src/lambda/http/getAllPosts.handler
+    events:
+      - http:
+          method: get
+          path: posts/all
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}
+  GetPostById:
+    handler: src/lambda/http/getPostById.handler
+    events:
+      - http:
+          method: get
+          path: posts/{postId}
           cors: true
     iamRoleStatements:
       - Effect: Allow

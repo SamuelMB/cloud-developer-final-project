@@ -46,8 +46,16 @@ export class PostBusiness {
     await this.postAccess.deletePost(postId, userId);
   }
 
-  async getPosts(userId: string): Promise<PostItem[]> {
-    return await this.postAccess.getPosts(userId);
+  async getPostsByUser(userId: string): Promise<PostItem[]> {
+    return await this.postAccess.getPostsByUser(userId);
+  }
+
+  async getAllPosts(): Promise<PostItem[]> {
+    return await this.postAccess.getAllPosts();
+  }
+
+  async getPostById(postId: string): Promise<PostItem> {
+    return await this.postAccess.getPostById(postId);
   }
 
   async updatePost(

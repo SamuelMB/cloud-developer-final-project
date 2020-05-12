@@ -1,7 +1,14 @@
 import * as React from 'react'
 import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
-import { getUploadUrl, uploadFile } from '../api/posts-api'
+import {
+  getUploadUrl,
+  uploadFile,
+  patchPost,
+  getPostById
+} from '../api/posts-api'
+import { Post } from '../types/Post'
+import { UpdatePostRequest } from '../types/UpdatePostRequest'
 
 enum UploadState {
   NoUpload,
@@ -21,6 +28,8 @@ interface EditPostProps {
 interface EditPostState {
   file: any
   uploadState: UploadState
+  post: UpdatePostRequest
+  oldPost: Post | null
 }
 
 export class EditPost extends React.PureComponent<
@@ -29,7 +38,28 @@ export class EditPost extends React.PureComponent<
 > {
   state: EditPostState = {
     file: undefined,
-    uploadState: UploadState.NoUpload
+    uploadState: UploadState.NoUpload,
+    post: {
+      title: '',
+      content: ''
+    },
+    oldPost: null
+  }
+
+  async componentDidMount() {
+    const post = await getPostById(
+      this.props.auth.getIdToken(),
+      this.props.match.params.postId
+    )
+
+    this.setState({ oldPost: post })
+    this.setState((prevState) => ({
+      post: {
+        ...prevState.post,
+        title: post.title,
+        content: post.content
+      }
+    }))
   }
 
   handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,27 +71,64 @@ export class EditPost extends React.PureComponent<
     })
   }
 
+  handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const title = event.target.value
+    if (!title) return
+
+    this.setState((prevState) => ({
+      post: {
+        ...prevState.post,
+        title
+      }
+    }))
+  }
+
+  handleContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const content = event.target.value
+    if (!content) return
+
+    const post = this.state.post
+    post.content = content
+
+    this.setState((prevState) => ({
+      post: {
+        ...prevState.post,
+        content
+      }
+    }))
+  }
+
   handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault()
 
     try {
-      if (!this.state.file) {
-        alert('File should be selected')
-        return
+      if (this.state.file) {
+        this.setUploadState(UploadState.FetchingPresignedUrl)
+        const uploadUrl = await getUploadUrl(
+          this.props.auth.getIdToken(),
+          this.props.match.params.postId
+        )
+
+        this.setUploadState(UploadState.UploadingFile)
+        await uploadFile(uploadUrl, this.state.file)
       }
 
-      this.setUploadState(UploadState.FetchingPresignedUrl)
-      const uploadUrl = await getUploadUrl(
-        this.props.auth.getIdToken(),
-        this.props.match.params.postId
-      )
+      if (this.state.oldPost) {
+        if (
+          this.state.post.title !== this.state.oldPost.title ||
+          this.state.post.content !== this.state.oldPost.content
+        ) {
+          await patchPost(
+            this.props.auth.getIdToken(),
+            this.state.oldPost.postId,
+            this.state.post
+          )
+        }
+      }
 
-      this.setUploadState(UploadState.UploadingFile)
-      await uploadFile(uploadUrl, this.state.file)
-
-      alert('File was uploaded!')
+      await alert('Post was updated!')
     } catch (e) {
-      alert('Could not upload a file: ' + e.message)
+      alert('Post not updated: ' + e.message)
     } finally {
       this.setUploadState(UploadState.NoUpload)
     }
@@ -88,7 +155,23 @@ export class EditPost extends React.PureComponent<
               onChange={this.handleFileChange}
             />
           </Form.Field>
-
+          <Form.Field>
+            <label>File</label>
+            <input
+              type="text"
+              placeholder="Title"
+              value={this.state.post.title}
+              onChange={this.handleTitleChange}
+            />
+          </Form.Field>
+          <Form.Field>
+            <textarea
+              value={this.state.post.content}
+              cols={30}
+              rows={10}
+              onChange={this.handleContentChange}
+            />
+          </Form.Field>
           {this.renderButton()}
         </Form>
       </div>
@@ -108,7 +191,7 @@ export class EditPost extends React.PureComponent<
           loading={this.state.uploadState !== UploadState.NoUpload}
           type="submit"
         >
-          Upload
+          Submit
         </Button>
       </div>
     )

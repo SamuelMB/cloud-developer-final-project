@@ -63,6 +63,21 @@ export async function patchPost(
   )
 }
 
+export async function getPostById(
+  idToken: string,
+  postId: string
+): Promise<Post> {
+  const response = await Axios.get(`${apiEndpoint}/posts/${postId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`
+    }
+  })
+  console.log(response)
+
+  return response.data.item
+}
+
 export async function deletePost(
   idToken: string,
   postId: string
