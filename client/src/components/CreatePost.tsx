@@ -58,7 +58,7 @@ export class CreatePost extends React.PureComponent<PostsProps, PostsState> {
   render(): React.ReactNode {
     return (
       <div>
-        <h1>Upload new image</h1>
+        <h1>Create New Post</h1>
 
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>
@@ -68,9 +68,11 @@ export class CreatePost extends React.PureComponent<PostsProps, PostsState> {
               placeholder="Title"
               onChange={this.handleTitleChange}
             />
-            <textarea cols={30} rows={10} onChange={this.handleContentChange} />
-            <Button type="submit">Send</Button>
           </Form.Field>
+          <Form.Field>
+            <textarea cols={30} rows={10} onChange={this.handleContentChange} />
+          </Form.Field>
+          <Button type="submit">Send</Button>
         </Form>
       </div>
     )
